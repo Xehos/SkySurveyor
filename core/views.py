@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 
 from .models import DroneProject, DroneImage, ProcessedModel
 import os
@@ -204,3 +205,24 @@ def view_model(request, model_id):
     model = get_object_or_404(ProcessedModel, id=model_id, project__user=request.user)
     
     return render(request, 'core/view_model.html', {'model': model})
+
+
+def login_view(request):
+    """Custom login view"""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {username}!")
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'core/login.html', {'form': form})
