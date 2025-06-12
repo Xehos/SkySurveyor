@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.conf import settings
+from django.contrib.auth import logout
 
 from .models import DroneProject, DroneImage, ProcessedModel
 import os
@@ -21,6 +22,12 @@ def dashboard(request):
     """User dashboard showing their projects"""
     projects = DroneProject.objects.filter(user=request.user).order_by('-updated_at')
     return render(request, 'core/dashboard.html', {'projects': projects})
+
+
+def logout_view(request):
+    """Custom logout view"""
+    logout(request)
+    return redirect('index')
 
 
 @login_required

@@ -9,4 +9,5 @@ urlpatterns = [
     path('projects/<int:project_id>/upload/', views.upload_images, name='upload_images'),
     path('projects/<int:project_id>/process/', views.process_images, name='process_images'),
     path('models/<int:model_id>/', views.view_model, name='view_model'),
+    path('logout/', views.logout_view, name='logout'),
 ]
