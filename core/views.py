@@ -10,6 +10,8 @@ from .models import DroneProject, DroneImage, ProcessedModel
 import os
 import numpy as np
 import cv2
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
 
 
 def index(request):
@@ -95,16 +97,69 @@ def upload_images(request, project_id):
             
             # Process valid images
             for img in valid_images:
+                altitude = None
+                latitude = None
+                longitude = None
+                # Extract EXIF data
+                try:
+                    
+                    with Image.open(img) as image:
+                        exif = image._getexif()
+                        if exif:
+                            for tag_id in exif:
+                                tag = TAGS.get(tag_id, tag_id)
+                                data = exif.get(tag_id)
+                                
+                                if tag == 'GPSInfo':
+                                    gps_data = {}
+                                    for gps_tag in data:
+                                        sub_tag = GPSTAGS.get(gps_tag, gps_tag)
+                                        gps_data[sub_tag] = data[gps_tag]
+                                    
+                                    if 'GPSLatitude' in gps_data and 'GPSLongitude' in gps_data:
+                                        lat = gps_data['GPSLatitude']
+                                        lat_ref = gps_data.get('GPSLatitudeRef', 'N')
+                                        lon = gps_data['GPSLongitude']
+                                        lon_ref = gps_data.get('GPSLongitudeRef', 'E')
+                                        
+                                        # Convert to decimal degrees
+                                        lat = float(lat[0] + lat[1]/60 + lat[2]/3600)
+                                        if lat_ref == 'S':
+                                            lat = -lat
+                                            
+                                        lon = float(lon[0] + lon[1]/60 + lon[2]/3600)
+                                        if lon_ref == 'W':
+                                            lon = -lon
+                                            
+                                        latitude = lat
+                                        longitude = lon
+                                        
+                                    if 'GPSAltitude' in gps_data:
+                                        try:
+                                            alt = gps_data['GPSAltitude']
+                                            if isinstance(alt, tuple):
+                                                altitude = float(alt[0]) / float(alt[1])
+                                            else:
+                                                # Some cameras store altitude as a single rational number
+                                                altitude = float(alt.numerator) / float(alt.denominator)
+                                        except (AttributeError, IndexError, ZeroDivisionError):
+                                            altitude = None
+                                        
+                            drone_image.save()
+                except Exception as e:
+                    # Log error but continue processing
+                    print(f"Error extracting EXIF data: {str(e)}")
+                # Here you could extract EXIF data for lat/long/altitude
+                # This would require additional libraries like Pillow's ExifTags
                 # Create drone image object
                 drone_image = DroneImage.objects.create(
                     project=project,
                     image=img,
-                    user=request.user
+                    user=request.user,
+                    altitude=altitude,
+                    longitude=longitude,
+                    latitude=latitude
                 )
-                
-                # Here you could extract EXIF data for lat/long/altitude
-                # This would require additional libraries like Pillow's ExifTags
-            
             if valid_images:
                 messages.success(request, f'{len(valid_images)} images uploaded successfully!')
                 return redirect('project_detail', project_id=project.id)
