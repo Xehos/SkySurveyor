@@ -1,0 +1,168 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Process Images - {{ project.name }} - SkySurveyor{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <nav class="flex mb-5" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'project_detail' project_id=project.id %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">{{ project.name }}</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Process Images</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-primary-600 px-6 py-4">
+            <h1 class="text-xl font-bold text-white">Process Images</h1>
+        </div>
+        <div class="p-6">
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            You have <strong>{{ project.images.count }}</strong> images available for processing. Processing may take several minutes depending on the number of images and selected quality.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'process_images' project_id=project.id %}">
+                {% csrf_token %}
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Processing Options</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="relative">
+                                <input type="checkbox" id="generate_3d_model" name="generate_3d_model" value="true" class="hidden peer" checked>
+                                <label for="generate_3d_model" class="block p-4 border rounded-lg cursor-pointer peer-checked:border-primary-500 peer-checked:ring-2 peer-checked:ring-primary-500 hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path>
+                                        </svg>
+                                        <div>
+                                            <span class="block font-medium">3D Model</span>
+                                            <span class="block text-sm text-gray-500">Generate a 3D model</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="generate_orthomosaic" name="generate_orthomosaic" value="true" class="hidden peer">
+                                <label for="generate_orthomosaic" class="block p-4 border rounded-lg cursor-pointer peer-checked:border-primary-500 peer-checked:ring-2 peer-checked:ring-primary-500 hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                                        </svg>
+                                        <div>
+                                            <span class="block font-medium">Orthomosaic</span>
+                                            <span class="block text-sm text-gray-500">Generate a 2D map</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="generate_point_cloud" name="generate_point_cloud" value="true" class="hidden peer">
+                                <label for="generate_point_cloud" class="block p-4 border rounded-lg cursor-pointer peer-checked:border-primary-500 peer-checked:ring-2 peer-checked:ring-primary-500 hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                        </svg>
+                                        <div>
+                                            <span class="block font-medium">Point Cloud</span>
+                                            <span class="block text-sm text-gray-500">Generate point cloud data</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Quality Settings</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="relative">
+                                <input type="radio" id="quality_low" name="quality" value="low" class="hidden peer">
+                                <label for="quality_low" class="block p-4 border rounded-lg cursor-pointer peer-checked:border-primary-500 peer-checked:ring-2 peer-checked:ring-primary-500 hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        <div>
+                                            <span class="block font-medium">Low Quality</span>
+                                            <span class="block text-sm text-gray-500">Faster processing time</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="relative">
+                                <input type="radio" id="quality_medium" name="quality" value="medium" class="hidden peer" checked>
+                                <label for="quality_medium" class="block p-4 border rounded-lg cursor-pointer peer-checked:border-primary-500 peer-checked:ring-2 peer-checked:ring-primary-500 hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        <div>
+                                            <span class="block font-medium">Medium Quality</span>
+                                            <span class="block text-sm text-gray-500">Balanced option</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="relative">
+                                <input type="radio" id="quality_high" name="quality" value="high" class="hidden peer">
+                                <label for="quality_high" class="block p-4 border rounded-lg cursor-pointer peer-checked:border-primary-500 peer-checked:ring-2 peer-checked:ring-primary-500 hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        <div>
+                                            <span class="block font-medium">High Quality</span>
+                                            <span class="block text-sm text-gray-500">Longer processing time</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-between">
+                    <a href="{% url 'project_detail' project_id=project.id %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Start Processing
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

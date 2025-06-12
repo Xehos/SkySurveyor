@@ -1,0 +1,260 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Upload Images - {{ project.name }} - SkySurveyor{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <nav class="flex mb-5" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'project_detail' project_id=project.id %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">{{ project.name }}</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Upload Images</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-primary-600 px-6 py-4">
+            <h1 class="text-xl font-bold text-white">Upload Images</h1>
+        </div>
+        <div class="p-6">
+            <form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'upload_images' project_id=project.id %}">
+                {% csrf_token %}
+                <div class="mb-6">
+                    <div id="drop-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div class="flex flex-col items-center justify-center space-y-3">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <div>
+                                <p class="text-lg font-medium text-gray-700">Drag and drop your drone images here</p>
+                                <p class="text-sm text-gray-500 mt-1">or click to browse files</p>
+                            </div>
+                            <input type="file" id="file-input" name="images" multiple accept="image/*" class="hidden">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="preview-container" class="mb-6 hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Selected Images (<span id="file-count">0</span>)</h3>
+                    <div id="preview-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+                </div>
+
+                <div class="flex justify-between">
+                    <a href="{% url 'project_detail' project_id=project.id %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Cancel
+                    </a>
+                    <button type="submit" id="upload-button" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Upload Images
+                    </button>
+                </div>
+            </form>
+
+            <div id="upload-progress" class="mt-6 hidden">
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-primary-700">Uploading...</span>
+                    <span class="text-sm font-medium text-primary-700" id="progress-text">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-primary-600 h-2.5 rounded-full" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const previewGrid = document.getElementById('preview-grid');
+        const fileCount = document.getElementById('file-count');
+        const uploadForm = document.getElementById('upload-form');
+        const uploadButton = document.getElementById('upload-button');
+        const uploadProgress = document.getElementById('upload-progress');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        // Handle click to select files
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Handle file selection via input
+        fileInput.addEventListener('change', handleFiles, false);
+        
+        // Handle form submission
+        uploadForm.addEventListener('submit', handleUpload, false);
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            dropArea.classList.add('border-primary-500');
+            dropArea.classList.add('bg-primary-50');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('border-primary-500');
+            dropArea.classList.remove('bg-primary-50');
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            // Don't create a synthetic event object, just pass the files directly
+            handleFiles(files);
+        }
+        
+        function handleFiles(e) {
+            // Check if e is a FileList directly (from drag and drop) or part of an event (from input change)
+            const files = e.target ? e.target.files : e;
+            if (files.length === 0) return;
+            
+            // Clear previous previews - ensure this happens before any processing
+            previewGrid.innerHTML = '';
+            
+            // Show preview container
+            previewContainer.classList.remove('hidden');
+            
+            // Maximum file size (10MB in bytes)
+            const maxFileSize = 10 * 1024 * 1024;
+            let validFiles = true;
+            let validFileCount = 0;
+            
+            // Use a Set to track processed files by name to prevent duplicates
+            const processedFiles = new Set();
+            
+            // Generate previews
+            Array.from(files).forEach(file => {
+                // Skip if we've already processed this file (by name)
+                if (processedFiles.has(file.name)) return;
+                processedFiles.add(file.name);
+                
+                // Check file size
+                if (file.size > maxFileSize) {
+                    alert(`File ${file.name} exceeds the maximum size limit of 10MB.`);
+                    validFiles = false;
+                    return;
+                }
+                
+                // Modified check to handle all image types including JPG/JPEG regardless of case
+                if (!file.type.match('image.*') && 
+                    !file.name.toLowerCase().endsWith('.jpg') && 
+                    !file.name.toLowerCase().endsWith('.jpeg')) return;
+                
+                validFileCount++;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'relative bg-gray-100 rounded-lg overflow-hidden aspect-square';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-full h-full object-cover';
+                    img.alt = file.name;
+                    
+                    preview.appendChild(img);
+                    previewGrid.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Update file count display after processing
+            if (!validFiles) {
+                fileInput.value = '';
+                previewGrid.innerHTML = '';
+                previewContainer.classList.add('hidden');
+            } else if (validFileCount === 0) {
+                // No valid files were found
+                fileInput.value = '';
+                previewGrid.innerHTML = '';
+                previewContainer.classList.add('hidden');
+                alert('No valid image files were selected.');
+            } else {
+                // Update the file count to show only valid files
+                fileCount.textContent = validFileCount;
+            }
+        }
+        
+        function handleUpload(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(uploadForm);
+            const xhr = new XMLHttpRequest();
+            
+            // Show progress bar
+            uploadProgress.classList.remove('hidden');
+            uploadButton.disabled = true;
+            uploadButton.classList.add('opacity-75');
+            
+            xhr.open('POST', uploadForm.action);
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percentComplete + '%';
+                    progressText.textContent = percentComplete + '%';
+                }
+            });
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    window.location.href = "{% url 'project_detail' project_id=project.id %}";
+                } else {
+                    alert('Upload failed. Please try again.');
+                    uploadButton.disabled = false;
+                    uploadButton.classList.remove('opacity-75');
+                    uploadProgress.classList.add('hidden');
+                }
+            };
+            
+            xhr.send(formData);
+        }
+    });
+</script>
+{% endblock %}

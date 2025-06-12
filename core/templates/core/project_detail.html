@@ -1,0 +1,190 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ project.name }} - SkySurveyor{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start mb-6">
+        <div>
+            <h1 class="text-3xl font-bold mb-2">{{ project.name }}</h1>
+            <p class="text-gray-500 mb-2">Created: {{ project.created_at|date:"F d, Y" }}</p>
+            <p class="text-gray-700">{{ project.description }}</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex flex-col sm:flex-row gap-3">
+            <a href="{% url 'upload_images' project_id=project.id %}" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Upload Images
+            </a>
+            {% if project.images.count > 0 %}
+            <a href="{% url 'process_images' project_id=project.id %}" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Process Images
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="border-b border-gray-200">
+            <nav class="flex" aria-label="Tabs">
+                <button class="tab-button text-primary-600 border-b-2 border-primary-500 py-4 px-6 font-medium text-sm" 
+                        id="images-tab" data-tab="images" aria-selected="true">
+                    Images ({{ project.images.count }})
+                </button>
+                <button class="tab-button text-gray-500 hover:text-gray-700 py-4 px-6 font-medium text-sm" 
+                        id="models-tab" data-tab="models" aria-selected="false">
+                    3D Models ({{ project.processed_models.count }})
+                </button>
+            </nav>
+        </div>
+        <div class="p-6">
+            <div class="tab-content" id="images-content">
+                {% if project.images.count > 0 %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {% for image in project.images.all %}
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <img src="{{ image.image.url }}" class="w-full h-48 object-cover" alt="{{ image.filename }}">
+                        <div class="p-3">
+                            <h6 class="font-medium text-sm truncate">{{ image.filename }}</h6>
+                            {% if image.latitude and image.longitude %}
+                            <p class="text-xs text-gray-500 mt-1 flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ image.latitude|floatformat:6 }}, {{ image.longitude|floatformat:6 }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                No images uploaded yet. <a href="{% url 'upload_images' project_id=project.id %}" class="font-medium underline">Upload images</a> to get started!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="tab-content hidden" id="models-content">
+                {% if project.processed_models.count > 0 %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for model in project.processed_models.all %}
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <div class="p-6">
+                            <h5 class="text-lg font-bold mb-2">Model #{{ model.id }}</h5>
+                            <p class="text-sm text-gray-500 mb-3">Created: {{ model.created_at|date:"M d, Y" }}</p>
+                            <div class="mb-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if model.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif model.status == 'processing' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ model.get_status_display }}
+                                </span>
+                            </div>
+                            {% if model.status == 'completed' %}
+                            <div class="space-y-2">
+                                <a href="{% url 'view_model' project_id=project.id model_id=model.id %}" 
+                                   class="flex items-center justify-center w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                                    </svg>
+                                    View 3D Model
+                                </a>
+                                {% if model.orthomosaic %}
+                                <a href="{{ model.orthomosaic.url }}" target="_blank"
+                                   class="flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                                    </svg>
+                                    View Orthomosaic
+                                </a>
+                                {% endif %}
+                                {% if model.point_cloud %}
+                                <a href="{{ model.point_cloud.url }}" target="_blank"
+                                   class="flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    Download Point Cloud
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                No processed models yet. Process your images to generate 3D models and orthomosaics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update tab buttons
+                tabButtons.forEach(btn => {
+                    if (btn.getAttribute('data-tab') === tabId) {
+                        btn.classList.add('text-primary-600', 'border-b-2', 'border-primary-500');
+                        btn.classList.remove('text-gray-500', 'hover:text-gray-700');
+                        btn.setAttribute('aria-selected', 'true');
+                    } else {
+                        btn.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                        btn.setAttribute('aria-selected', 'false');
+                    }
+                });
+                
+                // Show the selected tab content
+                tabContents.forEach(content => {
+                    if (content.id === tabId + '-content') {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

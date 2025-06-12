@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkySurveyor - Intelligent Photogrammetry{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <!--<link rel="stylesheet" href="{% static 'css/style.css' %}">-->
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-primary-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a class="flex items-center text-xl font-bold" href="{% url 'index' %}">
+                    <i class="fas fa-drone-alt mr-2"></i>SkySurveyor
+                </a>
+                <div class="hidden md:flex space-x-4">
+                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="{% url 'index' %}">Home</a>
+                    {% if user.is_authenticated %}
+                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="{% url 'dashboard' %}">Dashboard</a>
+                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="{% url 'create_project' %}">New Project</a>
+                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="/admin/logout/">Logout</a>
+                    {% else %}
+                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="/admin/login/">Login</a>
+                    {% endif %}
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white hover:text-primary-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu, hidden by default -->
+            <div id="mobile-menu" class="hidden md:hidden mt-2 space-y-2">
+                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="{% url 'index' %}">Home</a>
+                {% if user.is_authenticated %}
+                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="{% url 'dashboard' %}">Dashboard</a>
+                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="{% url 'create_project' %}">New Project</a>
+                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="/admin/logout/">Logout</a>
+                {% else %}
+                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="/admin/login/">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-6 flex-grow">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %} flex justify-between items-center">
+                    <div>{{ message }}</div>
+                    <button type="button" class="close-alert text-gray-500 hover:text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h5 class="text-lg font-bold mb-4">SkySurveyor</h5>
+                    <p class="text-gray-600">Intelligent Photogrammetry from Drone Data</p>
+                </div>
+                <div>
+                    <h5 class="text-lg font-bold mb-4">Links</h5>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'index' %}" class="text-primary-600 hover:text-primary-800">Home</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'dashboard' %}" class="text-primary-600 hover:text-primary-800">Dashboard</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-100 py-4 text-center text-gray-600">
+            © 2025 SkySurveyor - All rights reserved
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <!--<script src="{% static 'js/main.js' %}"></script>-->
+    
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Alert close functionality
+        document.querySelectorAll('.close-alert').forEach(button => {
+            button.addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

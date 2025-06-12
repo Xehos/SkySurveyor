@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block title %}SkySurveyor - Intelligent Photogrammetry from Drone Data{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row items-center py-12">
+    <div class="md:w-1/2 mb-8 md:mb-0">
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">Transform Drone Data into Actionable Insights</h1>
+        <p class="text-xl text-gray-600 mb-6">SkySurveyor uses advanced photogrammetry techniques to convert your drone imagery into detailed 3D models, orthomosaics, and point clouds.</p>
+        <div class="flex flex-col sm:flex-row gap-4">
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg text-center">Go to Dashboard</a>
+            <a href="{% url 'create_project' %}" class="border border-gray-300 hover:border-gray-400 text-gray-700 font-bold py-3 px-6 rounded-lg text-center">New Project</a>
+            {% else %}
+            <a href="/admin/login/" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg text-center">Get Started</a>
+            <a href="#features" class="border border-gray-300 hover:border-gray-400 text-gray-700 font-bold py-3 px-6 rounded-lg text-center">Learn More</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="md:w-1/2">
+        <div class="text-center">
+            <img src="https://via.placeholder.com/600x400?text=Drone+Imagery" class="rounded-lg shadow-lg mx-auto" alt="Drone Imagery">
+        </div>
+    </div>
+</div>
+
+<hr class="my-16 border-gray-200">
+
+<div id="features" class="py-12">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold">Key Features</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+            <div class="text-center">
+                <i class="fas fa-cube text-4xl text-primary-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-3">3D Model Generation</h3>
+                <p class="text-gray-600">Convert drone imagery into detailed 3D models for analysis and visualization.</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+            <div class="text-center">
+                <i class="fas fa-map text-4xl text-primary-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-3">Orthomosaic Maps</h3>
+                <p class="text-gray-600">Create high-resolution orthomosaic maps with precise georeferencing.</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+            <div class="text-center">
+                <i class="fas fa-chart-bar text-4xl text-primary-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-3">Data Analysis</h3>
+                <p class="text-gray-600">Extract valuable insights from your drone data with advanced analytics.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-16 border-gray-200">
+
+<div class="py-12">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">How It Works</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Our simple three-step process makes it easy to transform your drone data</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+            <div class="rounded-full bg-primary-600 text-white flex items-center justify-center mx-auto mb-6 w-24 h-24">
+                <span class="text-2xl font-bold">1</span>
+            </div>
+            <h4 class="text-xl font-bold mb-2">Upload Drone Images</h4>
+            <p class="text-gray-600">Upload your drone imagery to our secure platform</p>
+        </div>
+        <div class="text-center">
+            <div class="rounded-full bg-primary-600 text-white flex items-center justify-center mx-auto mb-6 w-24 h-24">
+                <span class="text-2xl font-bold">2</span>
+            </div>
+            <h4 class="text-xl font-bold mb-2">Process Data</h4>
+            <p class="text-gray-600">Our intelligent algorithms process your images</p>
+        </div>
+        <div class="text-center">
+            <div class="rounded-full bg-primary-600 text-white flex items-center justify-center mx-auto mb-6 w-24 h-24">
+                <span class="text-2xl font-bold">3</span>
+            </div>
+            <h4 class="text-xl font-bold mb-2">Analyze Results</h4>
+            <p class="text-gray-600">View and analyze your 3D models and orthomosaics</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
