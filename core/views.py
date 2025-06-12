@@ -170,7 +170,7 @@ def upload_images(request, project_id):
 
 
 @login_required
-@require_POST
+#@require_POST
 def process_images(request, project_id):
     """Start processing drone images for 3D reconstruction"""
     project = get_object_or_404(DroneProject, id=project_id, user=request.user)
