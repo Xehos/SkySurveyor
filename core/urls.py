@@ -10,4 +10,5 @@ urlpatterns = [
     path('projects/<int:project_id>/process/', views.process_images, name='process_images'),
     path('models/<int:model_id>/', views.view_model, name='view_model'),
     path('logout/', views.logout_view, name='logout'),
+    path('login/', views.login_view, name='login'),
 ]

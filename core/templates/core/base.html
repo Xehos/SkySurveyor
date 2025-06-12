@@ -55,7 +55,7 @@
                     <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="{% url 'create_project' %}">New Project</a>
                     <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="{% url 'logout' %}">Logout</a>
                     {% else %}
-                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="/admin/login/">Login</a>
+                    <a class="hover:text-primary-200 px-3 py-2 rounded-md" href="{% url 'login' %}">Login</a>
                     {% endif %}
                 </div>
                 <div class="md:hidden">
@@ -74,7 +74,7 @@
                 <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="{% url 'create_project' %}">New Project</a>
                 <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="{% url 'logout' %}">Logout</a>
                 {% else %}
-                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="/admin/login/">Login</a>
+                <a class="block hover:bg-primary-700 px-3 py-2 rounded-md" href="{% url 'login' %}">Login</a>
                 {% endif %}
             </div>
         </div>
