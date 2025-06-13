@@ -6,7 +6,7 @@
 <div class="flex flex-col md:flex-row items-center py-12">
     <div class="md:w-1/2 mb-8 md:mb-0">
         <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">Transform Drone Data into Actionable Insights</h1>
-        <p class="text-xl text-gray-600 mb-6">SkySurveyor uses advanced photogrammetry techniques to convert your drone imagery into detailed 3D models, orthomosaics, and point clouds.</p>
+        <p class="text-xl text-gray-600 mb-6">SkySurveyor uses advanced photogrammetry techniques to convert your drone imagery int orthomosaics, point clouds and make advanced analysis of it.</p>
         <div class="flex flex-col sm:flex-row gap-4">
             {% if user.is_authenticated %}
             <a href="{% url 'dashboard' %}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg text-center">Go to Dashboard</a>
@@ -19,7 +19,7 @@
     </div>
     <div class="md:w-1/2">
         <div class="text-center">
-            <img src="https://via.placeholder.com/600x400?text=Drone+Imagery" class="rounded-lg shadow-lg mx-auto" alt="Drone Imagery">
+            <img src="https://placehold.co/600x400" class="rounded-lg shadow-lg mx-auto" alt="Drone Imagery">
         </div>
     </div>
 </div>
@@ -31,18 +31,19 @@
         <h2 class="text-3xl font-bold">Key Features</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-            <div class="text-center">
-                <i class="fas fa-cube text-4xl text-primary-500 mb-4"></i>
-                <h3 class="text-xl font-bold mb-3">3D Model Generation</h3>
-                <p class="text-gray-600">Convert drone imagery into detailed 3D models for analysis and visualization.</p>
-            </div>
-        </div>
+        
         <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
             <div class="text-center">
                 <i class="fas fa-map text-4xl text-primary-500 mb-4"></i>
                 <h3 class="text-xl font-bold mb-3">Orthomosaic Maps</h3>
                 <p class="text-gray-600">Create high-resolution orthomosaic maps with precise georeferencing.</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+            <div class="text-center">
+                <i class="fas fa-cube text-4xl text-primary-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-3">AI Object Analysis</h3>
+                <p class="text-gray-600">Use Navita AI for object analysis of your orthomosaic.</p>
             </div>
         </div>
         <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
