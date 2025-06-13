@@ -6,14 +6,20 @@ from django.views.decorators.http import require_POST
 from django.conf import settings
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from .photogrammetry.PhotogrammetryHandler import PhotogrammetryHandler
 
 from .models import DroneProject, DroneImage, ProcessedModel
 import os
-import numpy as np
-import cv2
+#import numpy as np
+#import cv2
+import threading
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
+def run_job(func, *args, **kwargs):
+    job_thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+    job_thread.start()
+    return job_thread
 
 def index(request):
     """Home page view"""
@@ -189,12 +195,15 @@ def process_images(request, project_id):
         processing_status='PENDING'
     )
     
-    # In a real application, you would start a background task here
-    # For example using Celery to handle the processing asynchronously
-    # For now, we'll just update the status
+    
+    #handler.process_images(project, processed_model)
     processed_model.processing_status = 'PROCESSING'
     processed_model.save()
     
+    # Start processing images
+    handler = PhotogrammetryHandler()
+    run_job(handler.process_images, project, processed_model)
+
     messages.success(request, 'Image processing started. This may take some time.')
     return redirect('project_detail', project_id=project.id)
 
