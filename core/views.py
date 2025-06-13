@@ -196,10 +196,6 @@ def process_images(request, project_id):
     )
     
     
-    #handler.process_images(project, processed_model)
-    processed_model.processing_status = 'PROCESSING'
-    processed_model.save()
-    
     # Start processing images
     handler = PhotogrammetryHandler()
     run_job(handler.process_images, project, processed_model)
