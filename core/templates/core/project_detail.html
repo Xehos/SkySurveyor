@@ -111,7 +111,7 @@
                                     {{ model.get_status_display }}
                                     
                                 </span>
-                                <a href="{{ model.model_file }}" target="_blank">View Model</a>
+                                <a href="/media/{{ model.model_file|cut:'media/'|cut:'//' }}" target="_blank">View Model</a>
                             </div>
                             {% if model.status == 'completed' %}
                             <div class="space-y-2">
