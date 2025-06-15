@@ -207,27 +207,22 @@ def upload_images(request, project_id):
 @login_required
 #@require_POST
 def process_images(request, project_id):
-    """Start processing drone images for 3D reconstruction"""
     project = get_object_or_404(DroneProject, id=project_id, user=request.user)
-    
-    # Check if project has images
     if not project.images.exists():
         messages.error(request, 'Project has no images to process')
         return redirect('project_detail', project_id=project.id)
-    
-    # Create a new processing job
     model_name = f"{project.name} - {project.processed_models.count() + 1}"
     processed_model = ProcessedModel.objects.create(
         project=project,
         name=model_name,
         processing_status='PENDING'
     )
-    
-    
-    # Start processing images
     handler = PhotogrammetryHandler()
-    run_job(handler.process_images, project, processed_model)
-
+    process_type = request.GET.get('process_type', 'orthomosaic')
+    if process_type == 'analysis':
+        run_job(handler.image_analysis, project, processed_model)
+    else:
+        run_job(handler.process_images, project, processed_model)
     messages.success(request, 'Image processing started. This may take some time.')
     return redirect('project_detail', project_id=project.id)
 

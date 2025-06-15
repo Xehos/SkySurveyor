@@ -4,6 +4,7 @@ import os
 import folium
 from PIL import Image as PILImage
 import math
+import uuid
 
 class PhotogrammetryHandler:
     def __init__(self):
@@ -12,7 +13,8 @@ class PhotogrammetryHandler:
         self.color_correction_cache = {}  # Cache for color matching
         self.feature_points_cache = {}  # Cache for feature detection
         
-
+    def image_analysis(self,project,processed_model):
+        pass
     def get_ground_elevation(self, latitude, longitude):
         import requests
         url = f"https://api.open-elevation.com/api/v1/lookup?locations={latitude},{longitude}"
@@ -551,9 +553,17 @@ class PhotogrammetryHandler:
         
         m.get_root().html.add_child(folium.Element(custom_css))
         
-        map_path = 'media/maps/image_map_all.html'
+        # Generate a unique filename for the map
+        unique_id = uuid.uuid4().hex[:8]
+        map_filename = f"image_map_{unique_id}.html"
+        map_path = os.path.join('media/maps', map_filename)
         m.save(map_path)
-        
+        # Save the map path to processed_model.model_file
+        processed_model.model_file = map_path
+        processed_model.processing_status = 'COMPLETED'
+        processed_model.save()
+        return hd_path
+    
         # Delete temporary files
         for temp_file in hd_temp_files:
             try:

@@ -18,13 +18,26 @@
                 Upload Images
             </a>
             {% if project.images.count > 0 %}
-            <a href="{% url 'process_images' project_id=project.id %}" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                Process Images
-            </a>
+            <form id="process-form" method="get" action="{% url 'process_images' project_id=project.id %}" class="flex flex-col gap-2">
+                <div class="flex items-center gap-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="process_type" value="analysis" checked class="form-radio text-primary-600">
+                        <span class="ml-2">Images Analysis</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="process_type" value="orthomosaic" class="form-radio text-primary-600">
+                        <span class="ml-2">Orthomosaic</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="process_type" value="3dmodel" class="form-radio text-primary-600" disabled>
+                        <span class="ml-2">3D Model</span>
+                    </label>
+                </div>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center mt-2">
+                    <!-- Process SVG and text -->
+                    Process Images
+                </button>
+            </form>
             {% endif %}
         </div>
     </div>
