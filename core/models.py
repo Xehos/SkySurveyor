@@ -1,3 +1,4 @@
+from turtle import width
 from django.db import models
 from django.contrib.auth.models import User
 import os
@@ -30,6 +31,10 @@ class DroneImage(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     altitude = models.FloatField(null=True, blank=True)
+    diagonal_fov = models.FloatField(null=True, blank=True)
+    width = models.IntegerField(null=True, blank=True)
+    height = models.IntegerField(null=True, blank=True)
+    flight_yaw = models.FloatField(null=True,blank=True)
     
     def __str__(self):
         return os.path.basename(self.image.name)
