@@ -33,8 +33,10 @@ class DroneImage(models.Model):
     altitude = models.FloatField(null=True, blank=True)
     diagonal_fov = models.FloatField(null=True, blank=True)
     width = models.IntegerField(null=True, blank=True)
+    novita_description = models.TextField(blank=True, null=True)
     height = models.IntegerField(null=True, blank=True)
     flight_yaw = models.FloatField(null=True,blank=True)
+    
     
     def __str__(self):
         return os.path.basename(self.image.name)

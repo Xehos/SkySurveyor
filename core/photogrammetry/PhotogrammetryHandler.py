@@ -5,16 +5,103 @@ import folium
 from PIL import Image as PILImage
 import math
 import uuid
+from dotenv import load_dotenv
+import requests
+import base64
+
+
+load_dotenv()
+
+def describe_image_with_url(image_url, api_key):
+    url = "https://api.novita.ai/v3/openai/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    payload = {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Describe this image in full detail. Include the objects, environment, mood, purpose, country and architecture style."
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_url
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 1000
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()["choices"][0]["message"]["content"]
+
+def encode_image_to_base64_dataurl(image_path):
+    with open(image_path, "rb") as img_file:
+        encoded = base64.b64encode(img_file.read()).decode('utf-8')
+        return f"data:image/jpeg;base64,{encoded}"
+
+def describe_image_with_base64(image_path, api_key):
+    url = "https://api.novita.ai/v3/openai/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    image_dataurl = encode_image_to_base64_dataurl(image_path)
+
+    payload = {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Describe this image in full detail. Include the objects, environment, mood, purpose, country and architecture style."
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_dataurl
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 1000
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()["choices"][0]["message"]["content"]
+
 
 class PhotogrammetryHandler:
     def __init__(self):
+        self.novita_api = os.environ.get('NOVITA_API_KEY')
+        self.uploadme_api = os.environ.get('UPLOADME_API_KEY')
         self.images = []
         self.alignment_cache = {}  # Cache for edge-based alignment factors
         self.color_correction_cache = {}  # Cache for color matching
         self.feature_points_cache = {}  # Cache for feature detection
         
     def image_analysis(self,project,processed_model):
-        pass
+        for image in project.images.all():
+            image_path = image.image.path
+            hd_path = f"media/maps/hd_{uuid.uuid4()}.png"
+            hd_path = self.resize_image_to_hd(image_path, hd_path)
+            image.novita_description = describe_image_with_base64(hd_path, self.novita_api)
+            image.save(update_fields=["novita_description"])
+            # Force save navita description
+           
     def get_ground_elevation(self, latitude, longitude):
         import requests
         url = f"https://api.open-elevation.com/api/v1/lookup?locations={latitude},{longitude}"

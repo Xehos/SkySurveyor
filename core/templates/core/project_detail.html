@@ -51,7 +51,7 @@
                 </button>
                 <button class="tab-button text-gray-500 hover:text-gray-700 py-4 px-6 font-medium text-sm" 
                         id="models-tab" data-tab="models" aria-selected="false">
-                    3D Models ({{ project.processed_models.count }})
+                    Processing runs ({{ project.processed_models.count }})
                 </button>
             </nav>
         </div>
@@ -60,7 +60,7 @@
                 {% if project.images.count > 0 %}
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {% for image in project.images.all %}
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 image-card" data-description="{{ image.novita_description|escapejs }}">
                         <img src="{{ image.image.url }}" class="w-full h-48 object-cover" alt="{{ image.filename }}">
                         <div class="p-3">
                             <h6 class="font-medium text-sm truncate">{{ image.filename }}</h6>
@@ -100,15 +100,18 @@
                     {% for model in project.processed_models.all %}
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
                         <div class="p-6">
-                            <h5 class="text-lg font-bold mb-2">Model #{{ model.id }}</h5>
+                            <h5 class="text-lg font-bold mb-2">Run #{{ model.id }}</h5>
                             <p class="text-sm text-gray-500 mb-3">Created: {{ model.created_at|date:"M d, Y" }}</p>
                             <div class="mb-4">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    {% if model.status == 'completed' %}bg-green-100 text-green-800
-                                    {% elif model.status == 'processing' %}bg-yellow-100 text-yellow-800
+                                    {% if model.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                    {% elif model.status == 'PROCESSING' %}bg-yellow-100 text-yellow-800
+                                    {% elif model.status == 'PENDING' %}bg-yellow-100 text-yellow-800
                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
                                     {{ model.get_status_display }}
+                                    
                                 </span>
+                                <a href="{{ model.model_file }}" target="_blank">View Model</a>
                             </div>
                             {% if model.status == 'completed' %}
                             <div class="space-y-2">
@@ -164,6 +167,37 @@
     </div>
 </div>
 
+<!-- Modal for description -->
+<div id="novita-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+  <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+    <h2 class="text-2xl font-semibold mb-4">Image Description</h2>
+    <div id="novita-description" class="text-gray-800"></div>
+    <button id="close-novita-modal" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded">Close</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+document.querySelectorAll('.image-card').forEach(card => {
+  card.addEventListener('click', function() {
+    let desc = this.getAttribute('data-description');
+    if (desc && desc.trim() !== '') {
+      // Remove unwanted unicode artifacts and improve paragraph formatting
+      desc = desc.replace(/\\0[aA][aA]0/g, '\n '); // Remove \0aa0 or \0AA0 artifacts
+      desc = desc.replace(/\\u000A/gi, ' '); // Remove \u000A artifacts
+      desc = desc.replace(/\\u002D/gi, ' '); // Remove \u002D artifacts
+      desc = desc.replace(/\\u002D/gi, '\n'); // Remove literal \u002D artifacts
+      desc = desc.replace(/\\n/g, '\n'); // Convert escaped newlines to real newlines
+      desc = desc.replace(/\n{2,}/g, '\n\n'); // Ensure paragraphs have double newlines
+      document.getElementById('novita-description').innerHTML = marked.parse(desc);
+      document.getElementById('novita-modal').classList.remove('hidden');
+    }
+  });
+});
+document.getElementById('close-novita-modal').onclick = function() {
+  document.getElementById('novita-modal').classList.add('hidden');
+};
+</script>
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
